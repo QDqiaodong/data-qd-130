@@ -49,3 +49,23 @@ cli.py 衔接数据链路。fixtures 为明确自制样例，代码与样例采�
 ## 业务与样例结果
 
 样例项目工期8，关键路径A→C→D，B总时差2、独立E总时差6；显式无限资源假设。
+
+## 资源受限排程（`plan-schedule`）
+
+新增入口 `project_path.resource_cli`（安装后命令 `plan-schedule`）在双时态修订仓之上
+按 `(effective_at, known_seq)` **只读**取得计划，再读取资源JSON（每类可再生资源的整数
+容量与每任务各资源整数需求），求**全局最短工期**及该工期下按任务ID升序
+**开始时刻向量字典序最小**的最优排程。输出逐任务起止、分段资源用量、静态关键路径下界
+与修订来源；贪心结果绝不当最优发布，`--time-limit` 到期直接失败而不降级。
+完整输入/输出契约、语义与样例见 [资源受限排程契约](docs/resource-scheduling.md)。
+
+```sh
+.venv/bin/plan-history import --db run/history.db \
+  --source fixtures/history/batch-01-baseline.json
+.venv/bin/plan-schedule --db run/history.db --effective-at 0 --known-seq 1 \
+  --resources fixtures/resources.json --output run/schedule.json
+# 或不安装直接运行：python3 -m project_path.resource_cli ...
+```
+
+样例最短工期10（静态关键路径下界8）：A(0–3)、B(3–5)、C(5–9)、D(9–10)、E(0–2)，
+B与C争用inspector；D在C完成时刻9立即开始，验证同刻释放可复用。

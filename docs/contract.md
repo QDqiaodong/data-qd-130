@@ -15,4 +15,6 @@ tasks为1..1000项，每项唯一id、duration=0..10^6整数时间单位、唯�
 
 本契约描述单份快照。基于SQLite的双时态批次修订仓（乱序补录、按effective_at/known_seq
 重放、修订来源与同套关键路径证据）见 [bitemporal.md](bitemporal.md)，其每个生效断点
-物化出的快照仍须满足本文件全部规则。
+物化出的快照仍须满足本文件全部规则。资源受限排程（同一快照加资源JSON，求最短工期与
+最优排程）是独立入口，见 [resource-scheduling.md](resource-scheduling.md)；本文件的
+无限资源假设与结果不受其影响。

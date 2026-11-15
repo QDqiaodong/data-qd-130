@@ -1,0 +1,13 @@
+{
+  "resources": [
+    {"name": "crew", "capacity": 2},
+    {"name": "inspector", "capacity": 1}
+  ],
+  "demands": [
+    {"task_id": "A", "demand": [2, 0]},
+    {"task_id": "B", "demand": [0, 1]},
+    {"task_id": "C", "demand": [1, 1]},
+    {"task_id": "D", "demand": [0, 1]},
+    {"task_id": "E", "demand": [0, 0]}
+  ]
+}

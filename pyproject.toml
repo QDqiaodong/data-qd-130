@@ -10,5 +10,6 @@ dependencies = []
 [project.scripts]
 project-path = "project_path.cli:main"
 plan-history = "project_path.history:main"
+plan-schedule = "project_path.resource_cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]

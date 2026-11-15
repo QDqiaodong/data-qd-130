@@ -225,6 +225,55 @@ def import_batch(db_path, source_path):
             'status': 'accepted'}
 
 
+def read_snapshot(db_path, effective_at, known_seq):
+    """Read-only replay for downstream tools.
+
+    Opens the SQLite file with ``mode=ro`` so the revision store can never be
+    created, migrated or rewritten.  Returns the materialized snapshot, each
+    surviving task's revision source, and the coordinate actually used.
+    """
+    from urllib.parse import quote
+    effective_at = number(effective_at, 0, MAX_EFFECTIVE_AT)
+    known_seq = number(known_seq, 0, MAX_KNOWN_SEQ)
+    path = Path(db_path)
+    if path.is_symlink():
+        raise ValueError('database path cannot be a symlink')
+    if not path.exists():
+        raise ValueError('revision store does not exist')
+    uri = 'file:%s?mode=ro' % quote(str(path.resolve()), safe='/')
+    conn = sqlite3.connect(uri, uri=True)
+    conn.row_factory = sqlite3.Row
+    try:
+        tables = {r['name'] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if not {'batches', 'revisions'} <= tables:
+            raise ValueError('revision store schema is missing')
+        effective_known = conn.execute(
+            'SELECT MAX(known_seq) AS s FROM batches WHERE known_seq <= ?',
+            (known_seq,)).fetchone()['s']
+        base = {'effective_at': effective_at,
+                'requested_known_seq': known_seq,
+                'known_seq': effective_known}
+        if effective_known is None:
+            return {**base, 'state': 'absent', 'snapshot': None,
+                    'revision_sources': {}}
+        by_task = _load_history(conn, effective_known)
+        snapshot = _snapshot(by_task, effective_at)
+        if not snapshot['tasks']:
+            return {**base, 'state': 'absent', 'snapshot': None,
+                    'revision_sources': {}}
+        sources = {}
+        for row in snapshot['tasks']:
+            rev = _pick(by_task, row['id'], effective_at)
+            sources[row['id']] = {
+                'batch_id': rev[6], 'known_seq': rev[1],
+                'seq_in_batch': rev[2], 'effective_at': rev[0], 'op': rev[3]}
+        return {**base, 'state': 'active', 'snapshot': snapshot,
+                'revision_sources': sources}
+    finally:
+        conn.close()
+
+
 def query_store(db_path, effective_at, known_seq):
     """Replay the plan known by ``known_seq`` and effective at ``effective_at``."""
     effective_at = number(effective_at, 0, MAX_EFFECTIVE_AT)
