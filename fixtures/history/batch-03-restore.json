@@ -1,0 +1,12 @@
+{
+  "batch_id": "batch-03-restore",
+  "revisions": [
+    {
+      "task_id": "E",
+      "effective_at": 6,
+      "op": "upsert",
+      "duration": 2,
+      "predecessors": []
+    }
+  ]
+}

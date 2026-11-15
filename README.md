@@ -27,6 +27,25 @@ python3 -m venv .venv
 src/project_path/model.py 为业务模型，相关算法模块独立组织；common.py 提供受限JSON及报告发布，
 cli.py 衔接数据链路。fixtures 为明确自制样例，代码与样例采用MIT许可。
 
+## SQLite双时态修订仓
+
+快照CLI保持不变；另有 `project_path.history` 把计划变更按批次存入本地SQLite（仅标准库），
+支持乱序补录与按 `effective_at`、`known_seq` 重放，语义与持久化结构见
+[双时态契约](docs/bitemporal.md)。每批带 `batch_id`，修订按任务给出非负整数生效时刻，
+`upsert` 完整替换任务、`delete` 表示不存在；同批同任务同生效时刻重复非法，跨批允许更正。
+接受前在单事务内校验候选历史的全部生效断点（空快照/悬空依赖/成环即整批回滚且不消耗序号）；
+相同 `batch_id` 与相同源字节重试返回原序号，异内容冲突；旧 `known_seq` 结果永久可复现。
+
+```sh
+.venv/bin/plan-history import --db run/history.db \
+  --source fixtures/history/batch-01-baseline.json --output run/import-1.json
+.venv/bin/plan-history query --db run/history.db --effective-at 4 --known-seq 2
+# 或不安装直接运行：python3 -m project_path.history ...
+```
+
+查询输出每个存活任务的修订来源（批次、序号、生效时刻、操作），并附与快照CLI一致的
+原工期、时差与关键路径证据；`--output` 复用同一套原子安全发布，失败退出2且不破坏旧产物。
+
 ## 业务与样例结果
 
 样例项目工期8，关键路径A→C→D，B总时差2、独立E总时差6；显式无限资源假设。

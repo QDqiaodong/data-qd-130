@@ -1,0 +1,29 @@
+{
+  "batch_id": "batch-02-backfill",
+  "revisions": [
+    {
+      "task_id": "E",
+      "effective_at": 4,
+      "op": "delete"
+    },
+    {
+      "task_id": "B",
+      "effective_at": 4,
+      "op": "upsert",
+      "duration": 5,
+      "predecessors": [
+        "A"
+      ]
+    },
+    {
+      "task_id": "D",
+      "effective_at": 4,
+      "op": "upsert",
+      "duration": 1,
+      "predecessors": [
+        "B",
+        "C"
+      ]
+    }
+  ]
+}

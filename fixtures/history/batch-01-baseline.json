@@ -1,0 +1,47 @@
+{
+  "batch_id": "batch-01-baseline",
+  "revisions": [
+    {
+      "task_id": "A",
+      "effective_at": 0,
+      "op": "upsert",
+      "duration": 3,
+      "predecessors": []
+    },
+    {
+      "task_id": "B",
+      "effective_at": 0,
+      "op": "upsert",
+      "duration": 2,
+      "predecessors": [
+        "A"
+      ]
+    },
+    {
+      "task_id": "C",
+      "effective_at": 0,
+      "op": "upsert",
+      "duration": 4,
+      "predecessors": [
+        "A"
+      ]
+    },
+    {
+      "task_id": "D",
+      "effective_at": 0,
+      "op": "upsert",
+      "duration": 1,
+      "predecessors": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "task_id": "E",
+      "effective_at": 0,
+      "op": "upsert",
+      "duration": 2,
+      "predecessors": []
+    }
+  ]
+}
