@@ -18,9 +18,14 @@ def rows(value,limit=20000):
     if not isinstance(value,list) or len(value)>limit:raise ValueError('expected bounded array')
     return value
 
-def read(path):
-    with Path(path).open('rb') as stream:raw=stream.read(8_000_001)
-    if len(raw)>8_000_000:raise ValueError('JSON exceeds 8 MB')
+def read_source(path,max_bytes=8_000_000):
+    with Path(path).open('rb') as stream:raw=stream.read(max_bytes+1)
+    if len(raw)>max_bytes:
+        if max_bytes==8_000_000:raise ValueError('JSON exceeds 8 MB')
+        raise ValueError('JSON exceeds %d bytes' % max_bytes)
+    return decode(raw),raw,hashlib.sha256(raw).hexdigest()
+
+def decode(raw):
     def unique(pairs):
         result={}
         for k,v in pairs:
@@ -28,8 +33,15 @@ def read(path):
             result[k]=v
         return result
     def invalid(v):raise ValueError('nonfinite JSON number: '+v)
-    data=json.loads(raw,object_pairs_hook=unique,parse_constant=invalid)
-    return data,hashlib.sha256(raw).hexdigest()
+    return json.loads(raw,object_pairs_hook=unique,parse_constant=invalid)
+
+def read_bytes(raw,max_bytes=64_000_000):
+    if len(raw)>max_bytes:raise ValueError('JSON exceeds %d bytes' % max_bytes)
+    return decode(raw)
+
+def read(path):
+    data,raw,digest=read_source(path)
+    return data,digest
 
 def save(path,report):
     dest=Path(path)

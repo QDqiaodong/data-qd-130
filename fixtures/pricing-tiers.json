@@ -1,0 +1,12 @@
+{
+  "capacity": {"crew": 2, "inspector": 1},
+  "periods": [
+    {"period_id": "2026-01", "start": 0, "end": 50},
+    {"period_id": "2026-02", "start": 50, "end": 100}
+  ],
+  "tiers": [
+    {"resource": "crew", "size": 60, "unit_price": 7},
+    {"resource": "crew", "size": null, "unit_price": 4},
+    {"resource": "inspector", "size": null, "unit_price": 3}
+  ]
+}

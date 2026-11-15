@@ -17,4 +17,6 @@ tasks为1..1000项，每项唯一id、duration=0..10^6整数时间单位、唯�
 重放、修订来源与同套关键路径证据）见 [bitemporal.md](bitemporal.md)，其每个生效断点
 物化出的快照仍须满足本文件全部规则。资源受限排程（同一快照加资源JSON，求最短工期与
 最优排程）是独立入口，见 [resource-scheduling.md](resource-scheduling.md)；本文件的
-无限资源假设与结果不受其影响。
+无限资源假设与结果不受其影响。实绩资源结算（执行JSON加计价JSON，核验实绩容量并按
+账期/累进阶梯出票）同样是独立入口且明确不做排程，见
+[resource-billing.md](resource-billing.md)。

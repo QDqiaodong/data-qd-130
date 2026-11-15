@@ -1,0 +1,8 @@
+{
+  "resources": ["crew", "inspector"],
+  "tasks": [
+    {"task_id": "A", "start": 0, "finish": 30, "demand": [2, 0]},
+    {"task_id": "B", "start": 30, "finish": 70, "demand": [2, 0]},
+    {"task_id": "C", "start": 20, "finish": 50, "demand": [0, 1]}
+  ]
+}

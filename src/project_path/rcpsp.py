@@ -32,9 +32,15 @@ reported as the answer: if an optional time limit is hit ``TimeoutError`` is
 raised instead of publishing a heuristic result.
 """
 
+import bisect
+
 MAX_TASKS = 16
 MAX_RESOURCES = 3
 MAX_DURATION = 10 ** 6
+# Identity segments enumerate every (segment, active task) pair they report.
+# A pathological all-overlapping input can make that quadratic; fail explicitly
+# instead of hanging.
+MAX_IDENTITY_PAIRS = 4_000_000
 
 
 def _topological(tasks):
@@ -375,12 +381,71 @@ def solve(tasks, capacities, time_limit=None, seed=0):
                               'method': 'exact state-space enumeration of active schedules'}
 
 
-def resource_segments(tasks, starts, makespan, classes):
+def _identity_segments(tasks, starts, makespan, classes):
+    """Sweep-line segments that keep the active task identity.
+
+    Boundaries exist at every start/finish.  Adjacent segments are merged only
+    when the *active task set* is identical; equal usage alone is not enough.
+    A hand-over at a constant usage rate therefore stays visible as two
+    segments, which is what per-task cost attribution needs.  The sweep visits
+    only event points, never individual time units.
+    """
+    events = {}
+    for t in tasks:
+        duration = tasks[t]['duration']
+        if not duration:
+            continue
+        start = starts[t]
+        finish = start + duration
+        if not (0 <= start and finish <= makespan):
+            continue
+        events.setdefault(start, ([], []))[0].append(t)
+        events.setdefault(finish, ([], []))[1].append(t)
+    points = sorted({0, makespan} | set(events))
+    active = []
+    current = {cls: 0 for cls in classes}
+    index = {cls: i for i, cls in enumerate(classes)}
+    segments = []
+    pairs = 0
+    for position, a in enumerate(points):
+        begin, end = events.get(a, ((), ()))
+        for t in begin:
+            bisect.insort(active, t)
+            for cls in classes:
+                current[cls] += tasks[t]['demand'][index[cls]]
+        for t in end:
+            del active[bisect.bisect_left(active, t)]
+            for cls in classes:
+                current[cls] -= tasks[t]['demand'][index[cls]]
+        if position + 1 == len(points):
+            break
+        b = points[position + 1]
+        if a == b:
+            continue
+        if segments and segments[-1]['end'] == a and segments[-1]['tasks'] == active:
+            segments[-1]['end'] = b
+        else:
+            pairs += len(active)
+            if pairs > MAX_IDENTITY_PAIRS:
+                raise ValueError('too many concurrent task identities to segment')
+            segments.append({'start': a, 'end': b,
+                             'usage': {cls: current[cls] for cls in classes},
+                             'tasks': list(active)})
+    return segments
+
+
+def resource_segments(tasks, starts, makespan, classes, keep_identity=False):
     """Piecewise resource usage over [0, makespan); zero-duration tasks absent.
 
-    Boundaries only at task starts/finishes; adjacent segments whose usage is
-    identical are merged so zero-demand tasks do not create noise splits.
+    Boundaries only at task starts/finishes.  In the default mode adjacent
+    segments whose usage is identical are merged so zero-demand tasks do not
+    create noise splits.  With ``keep_identity=True`` every segment also carries
+    ``tasks`` (sorted active task ids) and is merged only when the active task
+    set is unchanged; this preserves a hand-over where total usage stays
+    constant but the responsible tasks change.
     """
+    if keep_identity:
+        return _identity_segments(tasks, starts, makespan, classes)
     points = {0, makespan}
     for t in tasks:
         if tasks[t]['duration']:

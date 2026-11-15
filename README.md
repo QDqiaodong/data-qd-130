@@ -87,3 +87,29 @@ B与C争用inspector；D在C完成时刻9立即开始，验证同刻释放可复
 ```
 
 fixtures/lake/ 为由 fixtures/history/ 三个批次生成的样例事件集。
+
+## 实绩资源结算（`plan-billing`）
+
+新增入口 `project_path.billing_cli`（安装后命令 `plan-billing`）：读取实绩执行 JSON
+（唯一任务 ID、`0 ≤ 起 ≤ 止` 整数、每资源非负整数需求）与计价 JSON（整数容量、账期
+边界、累进用量阶梯、非负整数分单价），逐身份段核验瞬时容量，按左闭右开区间计量、
+按任务用量分摊段费用，并把发票、明细与累计用量写入 SQLite。**明确契约，不做排程**。
+
+同一资源/账期跨票共享阶梯：每票在 `BEGIN IMMEDIATE` 写锁内读取已提交累计用量后重算，
+不会沿用过期用量；同 `(资源, 账期)` 的各明细先精确累加，再用最大余数法落到整数分，
+平局取较小任务 ID。`invoice_id` 与两份源字节哈希绑定：同 ID 同字节重试直接复用且不
+重复扣量，异内容冲突，任一失败整体回滚。完整契约、样例金额与并发语义见
+[实绩资源结算](docs/resource-billing.md)。
+
+```sh
+.venv/bin/plan-billing settle --db run/billing.db --invoice-id INV-1 \
+  --execution fixtures/actuals-handover.json \
+  --pricing fixtures/pricing-tiers.json --output run/invoice.json
+.venv/bin/plan-billing query --db run/billing.db --invoice-id INV-1
+# 或不安装直接运行：python3 -m project_path.billing_cli ...
+```
+
+样例中 A、B 以相同 crew=2 用量在时刻30交接、C 占用 inspector=1；账期在50切分，crew
+首档60单位7分、其后4分。发票合计 950 分：crew 账单期1为 580（A 420 / B 160），
+crew 账单期2为 280（B），inspector 90（C）。交接时刻落在阶梯边界时，A、B 的费用
+归属随身份改变，而总额不变。

@@ -6,3 +6,8 @@ resources.json 为同一虚构项目 A–E 的合成资源需求（两类可再�
 
 lake/ 为上述三个修订批次经 `plan-history lake-export` 生成的样例数据湖事件集
 （manifest.json 与三个 known_seq 分区），由工具确定性产出，测试逐字节比对。
+
+actuals-handover.json 与 pricing-tiers.json 为虚构实绩与计价样例：A、B 以相同 crew=2
+用量在时刻30交接，C 全程占用 inspector=1；账期在时刻50切分，crew 采用 60 单位以内的
+7 分/单位、超出 4 分/单位的累进阶梯。用于演示“用量不变但任务身份改变仍按身份分摊”
+以及跨账期、跨阶梯的余数落分。无真实人员、工时或价格数据。
