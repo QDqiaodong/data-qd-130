@@ -3,3 +3,6 @@ history/ 下的修订批次同为手工构造的虚构计划：batch-01 与 inpu
 
 resources.json 为同一虚构项目 A–E 的合成资源需求（两类可再生资源，整数容量与需求量），
 用于演示资源受限排程与同刻释放复用；不含真实项目、人员或产能数据。
+
+lake/ 为上述三个修订批次经 `plan-history lake-export` 生成的样例数据湖事件集
+（manifest.json 与三个 known_seq 分区），由工具确定性产出，测试逐字节比对。

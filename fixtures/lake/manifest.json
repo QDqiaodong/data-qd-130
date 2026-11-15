@@ -1,0 +1,41 @@
+{
+  "kind": "plan-history-lake-export",
+  "partitions": [
+    {
+      "batch_id": "batch-01-baseline",
+      "file": "partitions/known_seq=0000000001.jsonl",
+      "known_seq": 1,
+      "rows": 5,
+      "sha256": "f9c8fb85db726c177e9137b559cf527ab03a8acb575ca0c3ff1dcff64703080d",
+      "source_sha256": "4eea6ffe9c29a39fa554dac158647a9aeedb686258d1cd53d89d952b233e5aa2"
+    },
+    {
+      "batch_id": "batch-02-backfill",
+      "file": "partitions/known_seq=0000000002.jsonl",
+      "known_seq": 2,
+      "rows": 3,
+      "sha256": "30de38f91f6a6fa5163b98aca62f9694a788868453d1a7ec28e91c2126f645ef",
+      "source_sha256": "a460d49a48caf73f2b87a047d233d0bc267de524f486557316ac80458bcb33d0"
+    },
+    {
+      "batch_id": "batch-03-restore",
+      "file": "partitions/known_seq=0000000003.jsonl",
+      "known_seq": 3,
+      "rows": 1,
+      "sha256": "378a8ec07cb080be107db6760f5e8c0bd6ae09b03ee7a717ebe869eeed6947c2",
+      "source_sha256": "0996cf2e786d423e6d64cf6e504a5dfad5d3d8f31c59d98f8e8e29ac9253ffd6"
+    }
+  ],
+  "rows": 9,
+  "schema_version": 1,
+  "upstream": {
+    "batches": 3,
+    "history_sha256": "1699a9f043e93284b2b25dddec8b53a032640cb3ce6659aed7062312a731718a",
+    "tip": {
+      "batch_id": "batch-03-restore",
+      "known_seq": 3,
+      "source_sha256": "0996cf2e786d423e6d64cf6e504a5dfad5d3d8f31c59d98f8e8e29ac9253ffd6"
+    }
+  },
+  "watermark": 3
+}

@@ -93,3 +93,7 @@ revisions(known_seq, seq_in_batch, task_id, effective_at, op,
 
 单操作者本地工具，沿用快照链路的边界：不承诺多进程并发写与断电恢复；
 无网络访问、无第三方依赖。
+
+把已接受修订导出为可移交数据湖事件集（JSONL 分区 + 清单、续导与故障恢复）的
+`lake-export` 子命令见 [lake-export.md](lake-export.md)；该导出为纯事件转储，
+不改变本文件定义的重放语义。

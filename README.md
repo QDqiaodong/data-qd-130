@@ -69,3 +69,21 @@ cli.py 衔接数据链路。fixtures 为明确自制样例，代码与样例采�
 
 样例最短工期10（静态关键路径下界8）：A(0–3)、B(3–5)、C(5–9)、D(9–10)、E(0–2)，
 B与C争用inspector；D在C完成时刻9立即开始，验证同刻释放可复用。
+
+## 数据湖事件集导出（`plan-history lake-export`）
+
+`plan-history` 另有子命令 `lake-export`，把修订仓已接受的修订导出为可移交数据湖
+事件集：按 `known_seq` 分区、`seq_in_batch` 排序的 JSONL 事件（批次、双时间、操作、
+完整任务值/删除标记、源字节SHA256），外加记录上游标识、连续水位、行数与分区哈希的
+`manifest.json`。纯事件导出，不计算快照、关键路径或排程。源库只读且字节不变；
+缺序不跳过、已提交分区不可覆盖、同范围重跑幂等、新批次只追加；新分区暂存后原子
+落盘，manifest 是唯一提交点，落盘到提交间故障的孤儿分区按哈希接纳，失败不推进
+水位。完整契约见 [数据湖事件集导出](docs/lake-export.md)。
+
+```sh
+.venv/bin/plan-history lake-export --db run/history.db --lake run/lake \
+  --output run/export.json
+# 或不安装直接运行：python3 -m project_path.history lake-export ...
+```
+
+fixtures/lake/ 为由 fixtures/history/ 三个批次生成的样例事件集。

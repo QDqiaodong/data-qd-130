@@ -1,0 +1,5 @@
+{"batch_id":"batch-01-baseline","effective_at":0,"known_seq":1,"op":"upsert","seq_in_batch":1,"source_sha256":"4eea6ffe9c29a39fa554dac158647a9aeedb686258d1cd53d89d952b233e5aa2","task":{"duration":3,"predecessors":[]},"task_id":"A"}
+{"batch_id":"batch-01-baseline","effective_at":0,"known_seq":1,"op":"upsert","seq_in_batch":2,"source_sha256":"4eea6ffe9c29a39fa554dac158647a9aeedb686258d1cd53d89d952b233e5aa2","task":{"duration":2,"predecessors":["A"]},"task_id":"B"}
+{"batch_id":"batch-01-baseline","effective_at":0,"known_seq":1,"op":"upsert","seq_in_batch":3,"source_sha256":"4eea6ffe9c29a39fa554dac158647a9aeedb686258d1cd53d89d952b233e5aa2","task":{"duration":4,"predecessors":["A"]},"task_id":"C"}
+{"batch_id":"batch-01-baseline","effective_at":0,"known_seq":1,"op":"upsert","seq_in_batch":4,"source_sha256":"4eea6ffe9c29a39fa554dac158647a9aeedb686258d1cd53d89d952b233e5aa2","task":{"duration":1,"predecessors":["B","C"]},"task_id":"D"}
+{"batch_id":"batch-01-baseline","effective_at":0,"known_seq":1,"op":"upsert","seq_in_batch":5,"source_sha256":"4eea6ffe9c29a39fa554dac158647a9aeedb686258d1cd53d89d952b233e5aa2","task":{"duration":2,"predecessors":[]},"task_id":"E"}

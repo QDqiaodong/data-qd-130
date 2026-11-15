@@ -334,14 +334,33 @@ def main():
     qry.add_argument('--known-seq', type=int, required=True, dest='known_seq')
     qry.add_argument('--output', type=Path)
 
+    exp = sub.add_parser('lake-export',
+                         help='export accepted revisions to a data-lake event set')
+    exp.add_argument('--db', type=Path, required=True)
+    exp.add_argument('--lake', type=Path, required=True)
+    exp.add_argument('--output', type=Path)
+
     args = parser.parse_args()
     try:
         if args.command == 'import':
             _distinct_paths(args.db, args.source, args.output)
             report = import_batch(args.db, args.source)
-        else:
+        elif args.command == 'query':
             _distinct_paths(args.db, args.output)
             report = query_store(args.db, args.effective_at, args.known_seq)
+        else:
+            # Imported here so the export module can share store constants
+            # without a circular import at module load time.
+            from .lake_export import export_lake
+            _distinct_paths(args.db, args.lake, args.output)
+            if args.output is not None:
+                # The report must never overwrite managed lake content
+                # (manifest, partitions, staging files).
+                lake = args.lake.resolve()
+                out = args.output.resolve()
+                if out == lake or lake in out.parents:
+                    raise ValueError('output must not be inside the lake directory')
+            report = export_lake(args.db, args.lake)
         if args.output is not None:
             save(args.output, report)
     except (ValueError, TypeError, KeyError, OSError, OverflowError,

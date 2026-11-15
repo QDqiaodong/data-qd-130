@@ -1,0 +1,3 @@
+{"batch_id":"batch-02-backfill","effective_at":4,"known_seq":2,"op":"delete","seq_in_batch":1,"source_sha256":"a460d49a48caf73f2b87a047d233d0bc267de524f486557316ac80458bcb33d0","task":null,"task_id":"E"}
+{"batch_id":"batch-02-backfill","effective_at":4,"known_seq":2,"op":"upsert","seq_in_batch":2,"source_sha256":"a460d49a48caf73f2b87a047d233d0bc267de524f486557316ac80458bcb33d0","task":{"duration":5,"predecessors":["A"]},"task_id":"B"}
+{"batch_id":"batch-02-backfill","effective_at":4,"known_seq":2,"op":"upsert","seq_in_batch":3,"source_sha256":"a460d49a48caf73f2b87a047d233d0bc267de524f486557316ac80458bcb33d0","task":{"duration":1,"predecessors":["B","C"]},"task_id":"D"}
